@@ -2,19 +2,15 @@
 using namespace std;
 
 // Number of bucket files (must be <= 20 as per file count limit)
-static const int BUCKET_COUNT = 19;
+static const int BUCKET_COUNT = 20;
 
 static string bucket_file(int idx) {
     return "bucket_" + to_string(idx) + ".txt";
 }
 
 static int bucket_id(const string& key) {
-    // deterministic simple hash (polynomial rolling)
-    unsigned long long h = 0;
-    for (unsigned char c : key) {
-        h = h * 131 + c;
-    }
-    return (int)(h % BUCKET_COUNT);
+    // simple hash to bucket
+    return (int)(hash<string>{}(key) % BUCKET_COUNT);
 }
 
 // Load all values for a given key from its bucket file
@@ -67,7 +63,7 @@ int main() {
             cin >> val;
             set<int> cur = load_values(key);
             if(cur.find(val) == cur.end()) {
-                cerr << "Appending to " << bucket_file(bucket_id(key)) << "\n"; append_pair(key, val);
+                append_pair(key, val);
             }
         } else if(cmd == "delete") {
             cin >> val;
